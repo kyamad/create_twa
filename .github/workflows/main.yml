@@ -1,0 +1,27 @@
+name: Create Empty File on Push
+
+# このアクションは main ブランチへの push が発生した際にトリガーされます
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      # GitHubリポジトリからコードをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # 空のテキストファイルを生成
+      - name: Create an empty text file
+        run: echo "" > empty_file.txt
+
+      # ファイルをアーティファクトとしてアップロードし、後でPCにダウンロードできるようにする
+      - name: Upload file as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: empty-file
+          path: empty_file.txt
