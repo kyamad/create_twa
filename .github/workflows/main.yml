@@ -13,7 +13,7 @@ jobs:
     steps:
       # GitHubリポジトリからコードをチェックアウト
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       # 空のテキストファイルを生成
       - name: Create an empty text file
@@ -21,7 +21,7 @@ jobs:
 
       # ファイルをアーティファクトとしてアップロードし、後でPCにダウンロードできるようにする
       - name: Upload file as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: empty-file
           path: empty_file.txt
