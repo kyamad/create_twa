@@ -1,0 +1,44 @@
+name: Generate Android APK from PWA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-android-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. リポジトリをチェックアウト
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2. PWA Builder API を使って PWA から APK を生成
+    - name: Call PWA Builder API to generate APK
+      run: |
+        curl -X POST https://www.pwabuilder.com/api/generate \
+        -H "Content-Type: application/json" \
+        -d '{"siteUrl": "https://your-pwa-url.com"}' \
+        -o pwa_builder_response.json
+
+    # 3. APK ファイルをダウンロード
+    - name: Extract APK download link from response
+      run: |
+        apk_url=$(cat pwa_builder_response.json | jq -r '.platforms.android.package.url')
+        echo "APK Download URL: $apk_url"
+        curl -L "$apk_url" -o android_app.apk
+
+    # 4. APK ファイルをリポジトリに保存
+    - name: Upload APK file to the repository
+      run: |
+        mkdir -p output
+        mv android_app.apk output/
+
+    # 5. APKファイルをGitHubの成果物として保存
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: android-app-apk
+        path: output/android_app.apk
