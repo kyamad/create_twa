@@ -25,10 +25,14 @@ jobs:
 
     # 3. APK ファイルをダウンロード
     - name: Extract APK download link from response
-      run: |
-        apk_url=$(cat pwa_builder_response.json | jq -r '.platforms.android.package.url')
-        echo "APK Download URL: $apk_url"
-        curl -L "$apk_url" -o android_app.apk
+  run: |
+    apk_url=$(cat pwa_builder_response.json | jq -r '.platforms.android.package.url')
+    if [ -z "$apk_url" ]; then
+      echo "Failed to extract APK URL. Please check the API response."
+      exit 1
+    fi
+    echo "APK Download URL: $apk_url"
+    curl -L "$apk_url" -o android_app.apk
 
     # 4. APK ファイルをリポジトリに保存
     - name: Upload APK file to the repository
