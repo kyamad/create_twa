@@ -20,7 +20,7 @@ jobs:
       run: |
         curl -X POST https://www.pwabuilder.com/api/generate \
         -H "Content-Type: application/json" \
-        -d '{"siteUrl": "https://your-pwa-url.com"}' \
+        -d '{"siteUrl": "https://www.pwaserve.com"}' \
         -o pwa_builder_response.json
 
     # 3. APK ファイルをダウンロード
