@@ -13,7 +13,7 @@ jobs:
     steps:
       # GitHubリポジトリからコードをチェックアウト
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # 空のテキストファイルを生成
       - name: Create an empty text file
