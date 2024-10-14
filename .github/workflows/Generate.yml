@@ -1,10 +1,7 @@
-name: Generate Android APK from PWA
+name: Build Android APK from PWA Builder API
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   build-android-apk:
@@ -13,36 +10,43 @@ jobs:
     steps:
     # 1. リポジトリをチェックアウト
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
-    # 2. PWA Builder API を使って PWA から APK を生成
-    - name: Call PWA Builder API to generate APK
+    # 2. PWA Builder APIを呼び出して、指定したURLをアプリ化
+    - name: Call PWA Builder API for Android APK
       run: |
-        curl -X POST https://www.pwabuilder.com/api/generate \
+        curl -X POST "https://www.pwabuilder.com/api/generate" \
         -H "Content-Type: application/json" \
-        -d '{"siteUrl": "https://pwaserve.com"}' \
+        -d '{
+              "url": "https://pwaserve.com/",
+              "platforms": ["android"]
+            }' \
         -o pwa_builder_response.json
 
-    # 3. APK ファイルをダウンロード
-    - name: Extract APK download link from response
-  run: |
-    apk_url=$(cat pwa_builder_response.json | jq -r '.platforms.android.package.url')
-    if [ -z "$apk_url" ]; then
-      echo "Failed to extract APK URL. Please check the API response."
-      exit 1
-    fi
-    echo "APK Download URL: $apk_url"
-    curl -L "$apk_url" -o android_app.apk
-
-    # 4. APK ファイルをリポジトリに保存
-    - name: Upload APK file to the repository
+    # 3. レスポンスの中身を確認する (デバッグ用)
+    - name: Print API response
       run: |
-        mkdir -p output
-        mv android_app.apk output/
+        cat pwa_builder_response.json
 
-    # 5. APKファイルをGitHubの成果物として保存
+    # 4. レスポンスからAPKファイルのダウンロードURLを抽出
+    - name: Extract APK download link from response
+      run: |
+        apk_url=$(cat pwa_builder_response.json | jq -r '.platforms.android.package.url')
+        if [ -z "$apk_url" ]; then
+          echo "Failed to extract APK URL. Please check the API response."
+          exit 1
+        fi
+        echo "APK Download URL: $apk_url"
+
+    # 5. APKをダウンロード
+    - name: Download APK
+      run: |
+        apk_url=$(cat pwa_builder_response.json | jq -r '.platforms.android.package.url')
+        curl -L "$apk_url" -o android_app.apk
+
+    # 6. ダウンロードしたAPKをアーティファクトとして保存
     - name: Upload APK as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
-        name: android-app-apk
-        path: output/android_app.apk
+        name: android_app
+        path: android_app.apk
